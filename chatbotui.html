@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YOUR-BUDDY</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body,
+        html {
+            height: 100%;
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+        }
+
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            width: 100vw;
+            background: linear-gradient(135deg, #f0f4fd, #dfe3ee);
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #6c63ff, #3b3a9d);
+            color: white;
+            padding: 1rem;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 600;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .chat-messages {
+            flex-grow: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            background-color: #f7f9fc;
+            height: calc(100vh - 120px);
+            /* Adjust for header and input */
+        }
+
+        .message {
+            max-width: 75%;
+            margin-bottom: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .message:hover {
+            transform: translateY(-2px);
+        }
+
+        .bot-message {
+            background-color: #3b3a9d;
+            color: white;
+            align-self: flex-start;
+        }
+
+        .user-message {
+            background-color: #028dfe;
+            color: white;
+            align-self: flex-end;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 1rem;
+            background-color: white;
+            box-shadow: 0px -4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .chat-input input {
+            flex-grow: 1;
+            padding: 0.75rem 1rem;
+            border-radius: 25px;
+            border: 1px solid #ddd;
+            margin-right: 0.5rem;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .chat-input input:focus {
+            border-color: #3182ce;
+            box-shadow: 0px 0px 10px rgba(49, 130, 206, 0.5);
+        }
+
+        .chat-input button {
+            padding: 0.75rem 1.5rem;
+            background-color: #3182ce;
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+
+        .chat-input button:hover {
+            background-color: #2563eb;
+        }
+
+        .chat-input button:disabled {
+            background-color: #a0aec0;
+            cursor: not-allowed;
+        }
+
+        @media (max-width: 480px) {
+            .message {
+                max-width: 85%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            YOUR-BUDDY
+        </div>
+        <div id="chatMessages" class="chat-messages" aria-live="polite">
+            <div class="message bot-message">Hello! 🌟 I'm here to support you on your career journey. Let's start by
+                getting to know you better!</div>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="userInput" placeholder="Type your message here..." aria-label="Type your message">
+            <button id="sendButton" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const chatMessages = document.getElementById('chatMessages');
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+
+        let currentStep = 0; // Track the conversation step
+
+        function addMessage(message, isUser = false) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message');
+            messageElement.classList.add(isUser ? 'user-message' : 'bot-message');
+            messageElement.textContent = message;
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
+        }
+
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (message) {
+                addMessage(message, true); // Add user message
+                userInput.value = '';
+                sendButton.disabled = true;
+
+                // Process user message and get the bot response
+                setTimeout(() => {
+                    handleConversation(message);
+                    sendButton.disabled = false;
+                }, 1000);
+            }
+        }
+
+        userInput.addEventListener('keypress', function (event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        userInput.addEventListener('input', function () {
+            sendButton.disabled = this.value.trim() === '';
+        });
+
+        function handleConversation(userMessage) {
+            userMessage = userMessage.toLowerCase();
+
+            switch (currentStep) {
+                case 0:
+                    addMessage("Could you please let me know if you completed 10th or 12th grade? I'm here to help you find your path.");
+                    currentStep++;
+                    break;
+                case 1:
+                    if (userMessage.includes('10')) {
+                        addMessage("That's great! Since you completed 10th grade, do you prefer pursuing a diploma or continuing to 11th grade?");
+                        currentStep++;
+                    } else if (userMessage.includes('12')) {
+                        addMessage("Fantastic! Since you completed 12th grade, let's move on to the next questions.");
+                        addMessage("What is your family business?");
+                        currentStep += 2; // Skip to family business question
+                    } else {
+                        addMessage("Please let me know if you completed 10th or 12th grade.");
+                    }
+                    break;
+                case 2:
+                    if (userMessage.includes('diploma')) {
+                        addMessage("That's a wonderful choice! What diploma are you interested in?");
+                    } else if (userMessage.includes('11') || userMessage.includes('12')) {
+                        addMessage("Wonderful! Now, can you tell me about your family business?");
+                        currentStep += 2; // Skip to family business question
+                    } else {
+                        addMessage("Could you please specify if you want to pursue a diploma or continue with 11th/12th?");
+                    }
+                    currentStep++;
+                    break;
+                case 3:
+                    addMessage("That sounds interesting! Could you share more about the type of business?");
+                    currentStep++;
+                    break;
+                case 4:
+                    addMessage("What educational qualifications do you think you need for a career in a specific sector of your choice?");
+                    currentStep++;
+                    break;
+                case 5:
+                    addMessage("What skills do you believe are in demand for careers in that sector?");
+                    currentStep++;
+                    break;
+                case 6:
+                    addMessage("Lastly, what career options do you think are available for people without a college degree?");
+                    currentStep++;
+                    break;
+                default:
+                    addMessage("Thank you for sharing! I'm here to help if you have any other questions.");
+                    break;
+            }
+        }
+    </script>
+</body>
+
+</html>
